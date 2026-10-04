@@ -5,7 +5,7 @@
     2. Caipo Trujillo, Sonia Fernanda
     3. Zavaleta Rodriguez, Martin Alonso
 
-## Intrucciones:
+## Instrucciones:
 
 Deben realizar el código del diagrama que se está adjuntando como archivo mermaid. 
 
@@ -34,3 +34,6 @@ El ejemplo oficial de aws_lambda_function: https://github.com/terraform-provider
 **aws_s3_bucket_notification** → https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_notification
 
 **aws_vpc_endpoint** → https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint
+
+
+
