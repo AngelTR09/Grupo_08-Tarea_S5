@@ -1,0 +1,17 @@
+# --- Terraform: plugins descargados por `terraform init` ---
+.terraform/
+crash.log
+crash.*.log
+
+# --- Terraform: estados locales (tienen IDs y datos de la cuenta de AWS) ---
+*.tfstate
+*.tfstate.*
+terraform.tfstate.d/
+.terraform.tfstate.lock.info
+
+# --- Lambdas: dependencias y paquetes .zip generados ---
+node_modules/
+build/
+
+# --- Imágenes y archivos de prueba locales ---
+pruebas/
