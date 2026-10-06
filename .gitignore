@@ -16,3 +16,5 @@ build/
 # --- Imágenes y archivos de prueba locales ---
 pruebas/
 node_modules/
+
+build/
