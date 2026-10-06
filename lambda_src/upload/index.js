@@ -15,9 +15,12 @@ const ALLOWED = {
 
 exports.handler = async (event) => {
   try {
-    // En este punto se guarda el header original : el "boundary" del multipart distinguen las mayúsculas y minúsculas, 
-    
-    const contentType = event.headers?.["content-type"] || ""
+    // Se guarda el header original: el "boundary" del multipart distingue
+    // mayúsculas y minúsculas, así que no se puede pasar a minúsculas.
+    const contentType = event.headers?.["content-type"] || "";
+    const type = contentType.toLowerCase();
+    let file;
+
     if (type.startsWith("multipart/form-data")) {
       file = await parseMultipart(event, contentType);
     } else if (type.startsWith("application/json")) {
