@@ -1,16 +1,20 @@
 # Lab IaC — Image Processor en AWS (DEV, QA y PROD)
 
-En este laboratorio de Infraestructura utilizamos terraform para la arquitectura `docs/architecture.mermaid` la cual fue planteada en el ejercicio propuesto .el ejercicio nos lleva al objetivo que el  sistema recibe imágenes, las guarda en S3 y luego las procesa de manera automática. Además, usamos workspaces para tener una versión separada del sistema para el desarrollo, las pruebas y el producción con evidencia las cuales seran adjuntadas.
+En este laboratorio de Infraestructura utilizamos terraform para la arquitectura `docs/architecture.mermaid` la cual fue planteada en el ejercicio propuesto .El ejercicio nos lleva al objetivo que el  sistema recibe imágenes, las guarda en S3 y luego las procesa de manera automática. Además, usamos workspaces para tener una versión separada del sistema para el desarrollo, las pruebas y el producción con evidencia las cuales seran adjuntadas.
 
 
 ## Equipo
 
- el equipo esta conformado por y estos son los roles y aportes que hara cada integrante en en el trabajo 
-| Integrante | Rol | Aportes principales |
-|---|---|---|
-| Angel Eduardo Torres Ruiz | Líder, dueño de la cuenta AWS | Provider, outputs, despliegue y destrucción |
-| Sonia Fernanda Caipo Trujillo | Desarrollo | S3, SQS, observabilidad, código de las Lambdas, README |
-| Martin Alonso Zavaleta Rodriguez | Desarrollo | Red (VPC), IAM, funciones Lambda, API Gateway |
+ el equipo esta conformado por los siguiente integrantes :
+ 
+Integrantes: 
+
+ Angel Eduardo Torres Ruiz ->  Líder, dueño de la cuenta AWS
+
+ Sonia Fernanda Caipo Trujillo -> Desarrollo- Documentador
+
+ Martin Alonso Zavaleta Rodriguez -> Desarrollo -Documentador
+
 
 Para el flujo de trabajo que hemos desarrollado estamos utilizando  GitHub Flow, donde cada tarea se realiza en una rama aparte por el integrante asignado  , luego se crea un Pull Request para que otro integrante revise los cambios y, una vez aprobado los cambios , se hace el merge a main.Ademas implementamos el uso de  Conventional Commits para mantener ordenados los mensajes de los commits.
 
@@ -26,16 +30,12 @@ Para el flujo de trabajo que hemos desarrollado estamos utilizando  GitHub Flow,
 5. SQS dispara **crop-lambda** en lotes de 5 mensajes.
 6. crop-lambda descarga la imagen y la recorta a 40x40 con máscara circular (PNG transparente).
 7. Guarda el resultado en `processed/`.
-8. Si un mensaje llegara a fallar 3 veces pasa a la **DLQ**, que activa una **alarma de CloudWatch** hacia un tópico **SNS**.
 
 
 ## Corrección respecto al diagrama: NAT Gateways
 
-en el diagrama se puede observar que hay 2 NAT Gateways ,pero en nuestro caso las lambdas solo necesitan comunicarse con S3 y SQS y ambos servicios se pueden acceder mediante VPC Endpoints.Por ese motivo decidimos no crear los NAT Gateways.
+en el diagrama se puede observar que hay 2 NAT Gateways ,pero en nuestro caso las lambdas solo necesitan comunicarse con S3 y SQS y ambos servicios se pueden acceder mediante VPC Endpoints.Por ese motivo decidimos no crear los NAT Gateways por el costo que genera solo su existencia .
 
-
-
-En el diagrama aparecen 2 NAT Gateways, pero en nuestro caso las Lambdas solo necesitan comunicarse con S3 y SQS, y ambos servicios se pueden acceder mediante VPC Endpoints. Por estos motivos  decidimos no crear los NAT Gateways.
 
 - Un NAT Gateway genera un costo por cada hora que está activo, aunque no tenga tráfico.
 - Tener 2 NAT por entorno y 3 entornos (dev, qa y prod) significaría tener 6 NAT Gateways funcionando sin un uso real.
@@ -43,9 +43,9 @@ En el diagrama aparecen 2 NAT Gateways, pero en nuestro caso las Lambdas solo ne
 
 Pero las subredes públicas y el Internet Gateway sí se crean, tal como aparecen en el diagrama.
 
-Otras decisiones para evitar el  costo fueron :
+Otras decisiones que tomamos para evitar el  costo fueron :
 - La notificación de S3 solo filtra uploads/. Así evitamos que las imágenes guardadas en processed/ vuelvan a activar crop-lambda y se genere un bucle infinito.
-- Como el versionado está activo, las versiones antiguas se eliminan al día siguiente mediante noncurrent_version_expiration.
+- Como el versionado está activo, las versiones antiguas se eliminan al día siguiente mediante noncurrent_version_expiration para evitar pagar por el almacenamiento que genera gastos.
 - Los log groups se crean con una retención de 14 días para evitar que los logs se acumulen indefinidamente.
 
 
@@ -55,21 +55,36 @@ Otras decisiones para evitar el  costo fueron :
 
 
 
-.
+Grupo_08-Tarea_S5
+
 ├── providers.tf        # provider de AWS (credenciales vía `aws configure`)
+
 ├── variables.tf        # variables; las del API son mapas por workspace
+
 ├── terraform.tfvars
+
 ├── storage.tf          # S3: uploads/ y processed/
+
 ├── queue.tf            # SQS, DLQ y notificación S3 -> SQS
+
 ├── network.tf          # VPC, subredes, IGW, security groups y VPC endpoints
+
 ├── iam.tf              # roles de mínimo privilegio
+
 ├── observability.tf    # log groups, SNS y alarma de la DLQ
+
 ├── lambda.tf           # upload-lambda, crop-lambda y trigger de SQS
+
 ├── api.tf              # API Gateway HTTP API
+
 ├── outputs.tf
+
 ├── lambda_src/
+
 │   ├── upload/         # Node.js 20: recibe y valida la imagen
+
 │   └── crop/           # Node.js 20 + sharp: recorte circular 40x40
+
 └── docs/architecture.mermaid
 
 
@@ -86,7 +101,7 @@ Otras decisiones para evitar el  costo fueron :
 ## Despliegue
 
 
-Sera probado en el sistema operativo  Debian (x86_64).
+Sera probado en el sistema operativo  Debian (x86_64) y en una mac (Alonso).
 
 
 1. Dependencias de las Lambdas son:
@@ -114,17 +129,14 @@ terraform apply
 terraform output
 
 
-¡Dato ! No se debe desplegar en el works pace `default' los mapas de variables solo tienen `dev`, `qa` y `prod`, así que Terraform muestra un error a propósito.
-
 
 ## Prueba
 
-```bash
+
 url=$(terraform output -raw upload_url)
 bucket=$(terraform output -raw bucket_name)
 curl -i -X POST "$url" -F "file=@pruebas/foto.jpg;type=image/jpeg"
 aws s3 ls "s3://$bucket/processed/" 
-```
 
 
 
@@ -133,21 +145,17 @@ Respuesta que se espera obtener : `201` con la ruta `uploads/<uuid>.jpg`. Unos s
 
 ## Destrucción
 
-
-```bash
+# repetir con qa y prod
 terraform workspace select dev
 terraform destroy
-# repetir con qa y prod
-```
 
 
-Al momento de destruir, AWS tarda varios minutos en nuestro caso fueron tres 3 destrucciones y se tardo al rededor de 1 hora ,en liberar las interfaces de red que Lambda crea dentro de la VPC. Durante ese tiempo Terraform muestra `Still destroying...` en subredes y security groups; es normal y no se debe cancelar (tener paciencia).
+
+Al momento de destruir, AWS tarda varios minutos (de 15 a 20 minutos ) en nuestro caso fueron tres 3 destrucciones y se tardo al rededor de 1 hora y media ,en liberar las interfaces de red que Lambda crea dentro de la VPC. Durante ese tiempo Terraform muestra `Still destroying...` en subredes y security groups; es normal y no se debe cancelar.
 
 
-## Limitaciones conocidas
+## observaciones identificadas dentro del proyecto
 
 
-- El diagrama indica un máximo de 10 MB, pero AWS Lambda acepta como máximo 6 MB por invocación síncrona. En la práctica se ven , imágenes de más de ~6 MB (o ~4.5 MB si se envían en base64 dentro de un JSON) son rechazadas antes de llegar al código.
-- El tópico SNS se logra crear sin suscriptores y las alarma se pueden ver en CloudWatch.
-
+- El diagrama indica un máximo de 10 MB, pero en AWS Lambda acepta como máximo 6 MB por invocación síncrona. En la practica se ven que si las imágenes son más de ~6 MB son rechazadas antes de llegar al código.
 
