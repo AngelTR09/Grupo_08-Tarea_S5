@@ -5,15 +5,15 @@ En este laboratorio de Infraestructura utilizamos terraform para la arquitectura
 
 ## Equipo
 
- el equipo esta conformado por los siguiente integrantes :
+ El equipo esta conformado por los siguiente integrantes :
  
 Integrantes: 
 
- Angel Eduardo Torres Ruiz ->  Líder, dueño de la cuenta AWS
+- Angel Eduardo Torres Ruiz ->  Líder, dueño de la cuenta AWS
 
- Sonia Fernanda Caipo Trujillo -> Desarrollo- Documentador
+- Sonia Fernanda Caipo Trujillo -> Desarrollo- Documentador
 
- Martin Alonso Zavaleta Rodriguez -> Desarrollo -Documentador
+- Martin Alonso Zavaleta Rodriguez -> Desarrollo -Documentador
 
 
 Para el flujo de trabajo que hemos desarrollado estamos utilizando  GitHub Flow, donde cada tarea se realiza en una rama aparte por el integrante asignado  , luego se crea un Pull Request para que otro integrante revise los cambios y, una vez aprobado los cambios , se hace el merge a main.Ademas implementamos el uso de  Conventional Commits para mantener ordenados los mensajes de los commits.
@@ -98,31 +98,36 @@ Grupo_08-Tarea_S5
 - Debian (o cualquier Linux) en x86_64
 
 
-## Despliegue
-
+## Despliegue:
 
 Sera probado en el sistema operativo  Debian (x86_64) y en una mac (Alonso).
 
-
-1. Dependencias de las Lambdas son:
+### 1. Dependencias de las Lambdas son:
+ 
  El crop usa sharp, que trae binarios nativos en Debian x86_64 npm descarga los de Linux x64, que son los mismos que necesita AWS Lambda.
  
- comandos :
+- comandos :
+
 npm install --prefix lambda_src/upload --omit=dev
+
 npm install --prefix lambda_src/crop --omit=dev
 
 
-# 2. Inicializar Terraform
+### 2. Inicializar Terraform
+
 terraform init
 
 
-# 3. Crear los workspaces (solo la primera vez)
+### 3. Crear los workspaces (solo la primera vez)
+
 terraform workspace new dev
+
 terraform workspace new qa
+
 terraform workspace new prod
 
 
-# 4. Desplegar un entorno (repetir con qa y prod)
+### 4. Desplegar un entorno (repetir con qa y prod)
 
 terraform workspace select dev
 terraform apply
@@ -134,28 +139,31 @@ terraform output
 
 
 url=$(terraform output -raw upload_url)
+
 bucket=$(terraform output -raw bucket_name)
+
 curl -i -X POST "$url" -F "file=@pruebas/foto.jpg;type=image/jpeg"
+
 aws s3 ls "s3://$bucket/processed/" 
 
 
 
-Respuesta que se espera obtener : `201` con la ruta `uploads/<uuid>.jpg`. Unos segundos después aparece `processed/<uuid>_circular.png`.
+- Respuesta que se espera obtener : `201` con la ruta `uploads/<uuid>.jpg`. Unos segundos después aparece `processed/<uuid>_circular.png`.
 
 
 ## Destrucción
 
-# repetir con qa y prod
+### repetir con qa y prod
+
 terraform workspace select dev
+
 terraform destroy
 
 
-
-Al momento de destruir, AWS tarda varios minutos (de 15 a 20 minutos ) en nuestro caso fueron tres 3 destrucciones y se tardo al rededor de 1 hora y media ,en liberar las interfaces de red que Lambda crea dentro de la VPC. Durante ese tiempo Terraform muestra `Still destroying...` en subredes y security groups; es normal y no se debe cancelar.
+- Al momento de destruir, AWS tarda varios minutos (de 15 a 20 minutos ) en nuestro caso fueron tres 3 destrucciones y se tardo al rededor de 1 hora y media ,en liberar las interfaces de red que Lambda crea dentro de la VPC. Durante ese tiempo Terraform muestra `Still destroying...` en subredes y security groups; es normal y no se debe cancelar.
 
 
 ## observaciones identificadas dentro del proyecto
-
 
 - El diagrama indica un máximo de 10 MB, pero en AWS Lambda acepta como máximo 6 MB por invocación síncrona. En la practica se ven que si las imágenes son más de ~6 MB son rechazadas antes de llegar al código.
 
