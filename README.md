@@ -5,15 +5,15 @@ En este laboratorio de Infraestructura utilizamos terraform para la arquitectura
 
 ## Equipo
 
- el equipo esta conformado por los siguiente integrantes :
+ El equipo esta conformado por los siguiente integrantes :
  
 Integrantes: 
 
- Angel Eduardo Torres Ruiz ->  Líder, dueño de la cuenta AWS
+- Angel Eduardo Torres Ruiz ->  Líder, dueño de la cuenta AWS
 
- Sonia Fernanda Caipo Trujillo -> Desarrollo- Documentador
+- Sonia Fernanda Caipo Trujillo -> Desarrollo- Documentador
 
- Martin Alonso Zavaleta Rodriguez -> Desarrollo -Documentador
+- Martin Alonso Zavaleta Rodriguez -> Desarrollo -Documentador
 
 
 Para el flujo de trabajo que hemos desarrollado estamos utilizando  GitHub Flow, donde cada tarea se realiza en una rama aparte por el integrante asignado  , luego se crea un Pull Request para que otro integrante revise los cambios y, una vez aprobado los cambios , se hace el merge a main.Ademas implementamos el uso de  Conventional Commits para mantener ordenados los mensajes de los commits.
